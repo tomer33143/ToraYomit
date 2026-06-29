@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>תורה יומית</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Auth View -->
+<div id="authView" class="auth-container" style="display:none;">
+    <div class="auth-card glass-card">
+        <div class="auth-logo">
+            <i class="fa-solid fa-book-open"></i>
+            <h1>תורה יומית</h1>
+            <p>לומדים יחד, מתקדמים יחד</p>
+        </div>
+
+        <div class="auth-tabs">
+            <button class="tab-btn active" onclick="switchAuthTab('login')">כניסה</button>
+            <button class="tab-btn" onclick="switchAuthTab('join')">הצטרף</button>
+            <button class="tab-btn" onclick="switchAuthTab('create')">קבוצה חדשה</button>
+        </div>
+
+        <!-- Login Tab -->
+        <div id="tabLogin" class="auth-tab-content">
+            <div class="form-group">
+                <label><i class="fa-solid fa-phone"></i> מספר טלפון</label>
+                <input type="tel" id="loginPhone" class="form-control" placeholder="05X-XXXXXXX" autocomplete="tel">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-lock"></i> סיסמא</label>
+                <input type="password" id="loginPass" class="form-control" placeholder="הזן סיסמא" autocomplete="current-password">
+            </div>
+            <button class="btn btn-primary w-100" onclick="login()">
+                <i class="fa-solid fa-sign-in-alt"></i> כנס
+            </button>
+        </div>
+
+        <!-- Join Tab -->
+        <div id="tabJoin" class="auth-tab-content" style="display:none;">
+            <div class="form-group">
+                <label><i class="fa-solid fa-user"></i> שם מלא</label>
+                <input type="text" id="joinName" class="form-control" placeholder="לדוג': ישראל ישראלי">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-phone"></i> מספר טלפון</label>
+                <input type="tel" id="joinPhone" class="form-control" placeholder="05X-XXXXXXX" autocomplete="tel">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-lock"></i> סיסמא</label>
+                <input type="password" id="joinPass" class="form-control" placeholder="בחר סיסמא" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-key"></i> קוד קבוצה</label>
+                <input type="text" id="joinCode" class="form-control" placeholder="לדוג': A1B2" style="text-transform:uppercase;letter-spacing:4px;text-align:center;font-weight:800;">
+            </div>
+            <button class="btn btn-primary w-100" onclick="joinGroup()">
+                <i class="fa-solid fa-door-open"></i> הצטרף כעת
+            </button>
+        </div>
+
+        <!-- Create Tab -->
+        <div id="tabCreate" class="auth-tab-content" style="display:none;">
+            <div class="info-box">
+                <i class="fa-solid fa-crown"></i> מי שיוצר את הקבוצה הופך לרב/מנהל שלה
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-user-tie"></i> שם מלא (הרב / המנהל)</label>
+                <input type="text" id="createName" class="form-control" placeholder="לדוג': הרב לוי">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-phone"></i> מספר טלפון</label>
+                <input type="tel" id="createPhone" class="form-control" placeholder="05X-XXXXXXX" autocomplete="tel">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-lock"></i> סיסמא</label>
+                <input type="password" id="createPass" class="form-control" placeholder="בחר סיסמא" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-users"></i> שם הקבוצה</label>
+                <input type="text" id="createGroupName" class="form-control" placeholder="לדוג': שיעור דף יומי ערב">
+            </div>
+            <button class="btn btn-secondary w-100" onclick="createGroup()">
+                <i class="fa-solid fa-plus-circle"></i> צור קבוצה
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Main App View -->
+<div id="appView" style="display:none;">
+    <header class="app-header">
+        <div class="header-info">
+            <div class="header-logo">
+                <i class="fa-solid fa-book-open"></i>
+                <span class="header-title">תורה יומית</span>
+            </div>
+            <div class="header-group">
+                <span id="groupNameLabel"></span>
+                <span id="groupCodeLabel" class="badge-code"></span>
+            </div>
+        </div>
+        <div class="header-user">
+            <span id="userGreeting"></span>
+            <button class="btn-icon" onclick="logout()" title="התנתק">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-layout">
+
+        <!-- Feed Column -->
+        <section id="col-feed" class="col glass-card mobile-tab-content">
+            <div class="col-header">
+                <h2><i class="fa-solid fa-bullhorn"></i> עדכוני המערכת</h2>
+            </div>
+            <div id="rabbiMsgBox" class="rabbi-msg-box" style="display:none;">
+                <textarea id="rabbiMsgText" class="form-control" placeholder="כתוב הודעה לכל חברי הקבוצה..." rows="2"></textarea>
+                <button class="btn btn-secondary btn-sm" onclick="postRabbiMessage()">
+                    <i class="fa-solid fa-paper-plane"></i> שלח הודעה
+                </button>
+            </div>
+            <div class="feed-list" id="feedList"></div>
+        </section>
+
+        <!-- Tasks Column -->
+        <section id="col-tasks" class="col glass-card mobile-tab-content">
+            <div class="col-header">
+                <h2><i class="fa-solid fa-list-check"></i> משימות היום</h2>
+                <div id="deadlineDisplay" class="deadline-badge"></div>
+            </div>
+            <div id="tasksContainer"></div>
+        </section>
+
+        <!-- Leaderboard Column -->
+        <section id="col-leaderboard" class="col glass-card mobile-tab-content">
+            <div class="col-header">
+                <h2><i class="fa-solid fa-trophy"></i> טבלת מובילים</h2>
+            </div>
+            <div class="leaderboard" id="leaderboardList"></div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Nav (all screen sizes) -->
+    <nav class="bottom-nav">
+        <button class="nav-btn" data-tab="feed" onclick="switchTab('feed')">
+            <i class="fa-solid fa-bullhorn"></i>
+            <span>פיד</span>
+            <span class="nav-badge" id="feedBadge" style="display:none;"></span>
+        </button>
+        <button class="nav-btn active" data-tab="tasks" onclick="switchTab('tasks')">
+            <i class="fa-solid fa-list-check"></i>
+            <span>משימות</span>
+        </button>
+        <button class="nav-btn" data-tab="leaderboard" onclick="switchTab('leaderboard')">
+            <i class="fa-solid fa-trophy"></i>
+            <span>דירוג</span>
+        </button>
+    </nav>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

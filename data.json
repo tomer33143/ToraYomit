@@ -1,0 +1,87 @@
+{
+  "groups": {
+    "mqzfq03tapm": {
+      "id": "mqzfq03tapm",
+      "name": "אא",
+      "code": "92QP",
+      "rabbiId": "mqzfq03tswj",
+      "tasks": [],
+      "meta": {
+        "bonus": 10,
+        "date": "2026-06-30"
+      },
+      "feed": [
+        {
+          "id": "mqzpcg6blao",
+          "type": "system",
+          "text": "📅 יום חדש התחיל! הרב יעלה משימות חדשות.",
+          "time": "2026-06-29T21:00:38.243Z"
+        },
+        {
+          "id": "mqzfsm3ybex",
+          "type": "system",
+          "text": "⭐ גכ סיים/ה את כל 2 המשימות וקיבל/ה 117 נק' (כולל בונוס)!",
+          "time": "2026-06-29T16:33:16.270Z"
+        },
+        {
+          "id": "mqzfs7xkmlt",
+          "type": "system",
+          "text": "👤 גכ הצטרף/ה לקבוצה!",
+          "time": "2026-06-29T16:32:57.896Z"
+        },
+        {
+          "id": "mqzfr7hmqh5",
+          "type": "system",
+          "text": "📋 משימה חדשה: \"משנה\" (18 נק')",
+          "time": "2026-06-29T16:32:10.666Z"
+        },
+        {
+          "id": "mqzfqwedw0u",
+          "type": "system",
+          "text": "📋 משימה חדשה: \"גמרא\" (89 נק')",
+          "time": "2026-06-29T16:31:56.293Z"
+        },
+        {
+          "id": "mqzfq045l43",
+          "type": "system",
+          "text": "🎉 נפתחה קבוצת \"אא\"! קוד ההצטרפות: 92QP",
+          "time": "2026-06-29T16:31:14.453Z"
+        }
+      ]
+    }
+  },
+  "users": {
+    "mqzfq03tswj": {
+      "id": "mqzfq03tswj",
+      "phone": "0525381648",
+      "password": "1234",
+      "name": "גג",
+      "role": "rabbi",
+      "groupId": "mqzfq03tapm",
+      "points": 0
+    },
+    "mqzfs7xkxu5": {
+      "id": "mqzfs7xkxu5",
+      "phone": "051234567",
+      "password": "1234",
+      "name": "גכ",
+      "role": "student",
+      "groupId": "mqzfq03tapm",
+      "points": 117
+    }
+  },
+  "submissions": {
+    "mqzfq03tapm": {
+      "2026-06-29": {
+        "mqzfs7xkxu5": {
+          "tasksDone": [
+            "mqzfqwederl",
+            "mqzfr7hm2la"
+          ],
+          "submitted": true,
+          "pointsEarned": 117
+        }
+      }
+    }
+  }
+}
