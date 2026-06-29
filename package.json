@@ -1,15 +1,21 @@
 {
   "name": "torayomit",
   "version": "1.0.0",
-  "description": "",
+  "description": "תורה יומית - מערכת משימות וקבוצות עם Supabase ו-Vercel",
   "main": "app.js",
   "scripts": {
+    "start": "node server.js",
+    "dev": "vercel dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
     "body-parser": "^1.20.5",
     "cors": "^2.8.6",
     "express": "^4.22.2"
