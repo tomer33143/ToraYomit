@@ -41,7 +41,10 @@ module.exports = async (req, res) => {
       bonus: 10,
       date: today
     }]);
-    if (groupError) return res.status(500).json({ error: groupError.message });
+    if (groupError) {
+      console.error('❌ Group insert error:', groupError);
+      return res.status(500).json({ error: groupError.message });
+    }
 
     const { error: userInsertError } = await supabase.from('users').insert([{
       id: rabbiId,
@@ -52,13 +55,18 @@ module.exports = async (req, res) => {
       group_id: groupId,
       points: 0
     }]);
-    if (userInsertError) return res.status(500).json({ error: userInsertError.message });
+    if (userInsertError) {
+      console.error('❌ User insert error:', userInsertError);
+      return res.status(500).json({ error: userInsertError.message });
+    }
 
     await addFeedEvent(groupId, 'system', `🎉 נפתחה קבוצת "${groupName}"! קוד ההצטרפות: ${code}`);
 
     const { data: group } = await supabase.from('groups').select('*').eq('id', groupId).single();
-    const response = { user: normalizeUser({ id: rabbiId, phone, name, role: 'rabbi', group_id: groupId, points: 0 }), group: { ...normalizeGroup(group), tasks: [], feed: [] } };
-    console.log('✅ Sending response:', response);
+    const normalizedUser = normalizeUser({ id: rabbiId, phone, name, role: 'rabbi', group_id: groupId, points: 0 });
+    const normalizedGroup = normalizeGroup(group);
+    const response = { user: normalizedUser, group: { ...normalizedGroup, tasks: [], feed: [] } };
+    console.log('✅ Sending response:', JSON.stringify(response, null, 2));
     return res.status(200).json(response);
   } catch (error) {
     return res.status(500).json({ error: error.message || 'Server error' });

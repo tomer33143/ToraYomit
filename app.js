@@ -75,12 +75,17 @@ async function createGroup() {
     if (!name || !phone || !password || !groupName) return toast('אנא מלא את כל השדות', 'error');
     console.log('Creating group...', { name, phone, groupName });
     const data = await api('create-group', { name, phone, password, groupName });
-    console.log('Response:', data);
+    console.log('Full API Response:', JSON.stringify(data, null, 2));
     if (data.error) return toast(data.error, 'error');
     if (!data.user) {
-        console.error('Missing user in response:', data);
-        return toast('Error: no user data', 'error');
+        console.error('❌ Missing user in response. Full data:', JSON.stringify(data, null, 2));
+        return toast('Error: no user data in response', 'error');
     }
+    if (!data.user.name) {
+        console.error('❌ User missing name field:', data.user);
+        return toast('Error: invalid user data - missing name', 'error');
+    }
+    console.log('✅ User valid:', data.user);
     loginSuccess(data.user);
 }
 
