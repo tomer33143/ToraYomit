@@ -15,13 +15,22 @@ let pollTimer     = null;
 // ─── Boot ────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
     console.log('🔵 ToraYomit loading...');
-    const saved = localStorage.getItem('toraUser');
-    if (saved) {
-        console.log('✅ User found in localStorage');
-        currentUser = JSON.parse(saved);
-        showApp();
-    } else {
-        console.log('📝 No user, showing auth');
+    try {
+        const saved = localStorage.getItem('toraUser');
+        console.log('Saved data:', saved);
+        if (saved && saved !== 'undefined' && saved.trim() !== '') {
+            console.log('✅ User found in localStorage');
+            currentUser = JSON.parse(saved);
+            console.log('👤 Parsed user:', currentUser);
+            showApp();
+        } else {
+            console.log('📝 No user, showing auth');
+            localStorage.removeItem('toraUser');
+            showAuth();
+        }
+    } catch (e) {
+        console.error('❌ Error loading user:', e);
+        localStorage.removeItem('toraUser');
         showAuth();
     }
     console.log('✅ ToraYomit loaded successfully');
@@ -80,9 +89,20 @@ function loginSuccess(user) {
         console.error('User is undefined in loginSuccess');
         return toast('Error: no user', 'error');
     }
-    console.log('Logging in user:', user);
+    if (!user.name) {
+        console.error('❌ User missing name:', user);
+        return toast('Error: invalid user data', 'error');
+    }
+    console.log('👤 Logging in user:', user);
     currentUser = user;
-    localStorage.setItem('toraUser', JSON.stringify(user));
+    try {
+        const userJson = JSON.stringify(user);
+        console.log('💾 Saving to localStorage:', userJson);
+        localStorage.setItem('toraUser', userJson);
+    } catch (e) {
+        console.error('❌ Error saving to localStorage:', e);
+        return toast('Error: saving user failed', 'error');
+    }
     showApp();
 }
 
