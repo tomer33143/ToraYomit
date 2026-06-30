@@ -139,9 +139,6 @@ function showApp() {
         document.body.innerHTML = '<div style="color:red; padding:20px;"><p>' + e.message + '</p></div>';
     }
 }
-    fetchState();
-    pollTimer = setInterval(fetchState, 2000);
-}
 
 // ─── Tabs ────────────────────────────────────────────────
 function switchTab(tab) {
