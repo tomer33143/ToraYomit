@@ -473,15 +473,21 @@ function api(endpoint, body) {
             'Authorization': `Bearer ${localStorage.getItem('apiKey') || 'default'}`
         },
         body: JSON.stringify(body)
-    }).then(r => {
+    }).then(async r => {
         console.log(`📡 Response status for ${endpoint}:`, r.status);
-        return r.json().then(data => {
+        const text = await r.text();
+        try {
+            const data = JSON.parse(text || '{}');
             console.log(`📦 Raw JSON response for ${endpoint}:`, JSON.stringify(data, null, 2));
             return data;
-        });
+        } catch (parseError) {
+            console.error(`❌ Failed to parse JSON response for ${endpoint}:`, parseError);
+            console.error(`📄 Response text for ${endpoint}:`, text);
+            return { error: `Invalid JSON response from ${endpoint}` };
+        }
     }).catch(e => { 
         console.error('❌ API Error:', e); 
-        return {}; 
+        return { error: `Network error calling ${endpoint}` }; 
     });
 }
 
