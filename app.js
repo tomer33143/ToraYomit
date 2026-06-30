@@ -64,12 +64,23 @@ async function createGroup() {
     const password  = v('createPass');
     const groupName = v('createGroupName');
     if (!name || !phone || !password || !groupName) return toast('אנא מלא את כל השדות', 'error');
+    console.log('Creating group...', { name, phone, groupName });
     const data = await api('create-group', { name, phone, password, groupName });
+    console.log('Response:', data);
     if (data.error) return toast(data.error, 'error');
+    if (!data.user) {
+        console.error('Missing user in response:', data);
+        return toast('Error: no user data', 'error');
+    }
     loginSuccess(data.user);
 }
 
 function loginSuccess(user) {
+    if (!user) {
+        console.error('User is undefined in loginSuccess');
+        return toast('Error: no user', 'error');
+    }
+    console.log('Logging in user:', user);
     currentUser = user;
     localStorage.setItem('toraUser', JSON.stringify(user));
     showApp();

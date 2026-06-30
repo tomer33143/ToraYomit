@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
 
   try {
     const { name, phone, password, groupName } = await parseBody(req);
+    console.log('📝 create-group received:', { name, phone, groupName });
     if (!name || !phone || !password || !groupName) {
       return res.status(400).json({ error: 'כל השדות חובה' });
     }
@@ -56,7 +57,9 @@ module.exports = async (req, res) => {
     await addFeedEvent(groupId, 'system', `🎉 נפתחה קבוצת "${groupName}"! קוד ההצטרפות: ${code}`);
 
     const { data: group } = await supabase.from('groups').select('*').eq('id', groupId).single();
-    return res.status(200).json({ user: normalizeUser({ id: rabbiId, phone, name, role: 'rabbi', group_id: groupId, points: 0 }), group: { ...normalizeGroup(group), tasks: [], feed: [] } });
+    const response = { user: normalizeUser({ id: rabbiId, phone, name, role: 'rabbi', group_id: groupId, points: 0 }), group: { ...normalizeGroup(group), tasks: [], feed: [] } };
+    console.log('✅ Sending response:', response);
+    return res.status(200).json(response);
   } catch (error) {
     return res.status(500).json({ error: error.message || 'Server error' });
   }
