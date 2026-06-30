@@ -1,103 +1,39 @@
+/**
+ * Local Development Server Only
+ * Vercel uses serverless functions in /api/ directory
+ * This file is only for npm start locally
+ */
+
 const express = require('express');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
-const PORT = 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.static(__dirname));
 
-let data = { groups: {}, users: {}, submissions: {} };
-
-function loadData() {
-    try {
-        if (fs.existsSync(DATA_FILE)) {
-            const raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-            if (raw.users) data = raw;
-        }
-    } catch (e) { console.error('Load error:', e); }
-}
-
-function saveData() {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
-loadData();
-
-function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-}
-function generateCode() {
-    return Math.random().toString(36).substring(2, 6).toUpperCase();
-}
-
-function addFeedEvent(groupId, type, text) {
-    if (!data.groups[groupId]) return;
-    data.groups[groupId].feed.unshift({
-        id: generateId(), type, text, time: new Date().toISOString()
-    });
-    // Keep feed max 50 entries
-    if (data.groups[groupId].feed.length > 50) {
-        data.groups[groupId].feed = data.groups[groupId].feed.slice(0, 50);
-    }
-}
-
-function getIsraelDate() {
-    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
-}
-
-// 1. Create Group
-app.post('/api/create-group', (req, res) => {
-    const { name, phone, password, groupName } = req.body;
-    if (!name || !phone || !password || !groupName) {
-        return res.status(400).json({ error: 'כל השדות חובה' });
-    }
-    const existingUser = Object.values(data.users).find(u => u.phone === phone);
-    if (existingUser) return res.status(400).json({ error: 'מספר טלפון כבר רשום במערכת.' });
-
-    const rabbiId = generateId();
-    const code = generateCode();
-    const groupId = generateId();
-
-    data.users[rabbiId] = { id: rabbiId, phone, password, name, role: 'rabbi', groupId, points: 0 };
-    data.groups[groupId] = {
-        id: groupId, name: groupName, code, rabbiId,
-        tasks: [],
-        meta: { bonus: 10, date: getIsraelDate() },
-        feed: []
-    };
-    addFeedEvent(groupId, 'system', `🎉 נפתחה קבוצת "${groupName}"! קוד ההצטרפות: ${code}`);
-    saveData();
-    res.json({ user: data.users[rabbiId], group: data.groups[groupId] });
+// Serve static files
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 2. Join Group
-app.post('/api/join-group', (req, res) => {
-    const { name, phone, password, code } = req.body;
-    if (!name || !phone || !password || !code) {
-        return res.status(400).json({ error: 'כל השדות חובה' });
-    }
-    const existingUser = Object.values(data.users).find(u => u.phone === phone);
-    if (existingUser) return res.status(400).json({ error: 'מספר טלפון כבר רשום. לחץ על התחברות.' });
-
-    const group = Object.values(data.groups).find(g => g.code === code.toUpperCase());
-    if (!group) return res.status(404).json({ error: 'קוד קבוצה שגוי' });
-
-    const studentId = generateId();
-    data.users[studentId] = { id: studentId, phone, password, name, role: 'student', groupId: group.id, points: 0 };
-    addFeedEvent(group.id, 'system', `👤 ${name} הצטרף/ה לקבוצה!`);
-    saveData();
-    res.json({ user: data.users[studentId], group });
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', environment: 'local' });
 });
 
-// 3. Login
-app.post('/api/login', (req, res) => {
-    const { phone, password } = req.body;
+app.listen(PORT, () => {
+  console.log(`
+╔════════════════════════════════════════╗
+║  🔵 ToraYomit - Local Server Ready    ║
+║  Running on: http://localhost:${PORT}       ║
+║  Press CTRL+C to stop                 ║
+╚════════════════════════════════════════╝
+  `);
+});
     const user = Object.values(data.users).find(u => u.phone === phone && u.password === password);
     if (!user) return res.status(401).json({ error: 'טלפון או סיסמא שגויים' });
     res.json({ user, group: data.groups[user.groupId] });

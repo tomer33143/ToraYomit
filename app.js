@@ -388,7 +388,10 @@ function postRabbiMessage() {
 function api(endpoint, body) {
     return fetch(`${API}/${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('apiKey') || 'default'}`
+        },
         body: JSON.stringify(body)
     }).then(r => r.json()).catch(e => { console.error(e); return {}; });
 }

@@ -24,7 +24,10 @@ function parseBody(req) {
 
 function checkApiKey(req, res) {
   const expectedKey = process.env.API_KEY;
-  if (!expectedKey) {
+  const isProduction = process.env.VERCEL_ENV === 'production';
+  
+  // Skip check in development or if no key is set
+  if (!expectedKey || (!isProduction && process.env.NODE_ENV !== 'production')) {
     return true;
   }
 
@@ -32,7 +35,7 @@ function checkApiKey(req, res) {
   const key = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : authHeader.trim();
 
   if (key !== expectedKey) {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: 'Unauthorized - Invalid API Key' });
     return false;
   }
 
