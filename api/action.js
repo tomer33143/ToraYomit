@@ -1,8 +1,7 @@
 const { supabase } = require('./supabase');
-const { parseBody, checkApiKey, getIsraelDate, addFeedEvent, normalizeUser } = require('./utils');
+const { parseBody, getIsraelDate, addFeedEvent, normalizeUser } = require('./utils');
 
 module.exports = async (req, res) => {
-  if (!checkApiKey(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

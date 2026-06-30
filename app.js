@@ -465,30 +465,46 @@ function postRabbiMessage() {
 }
 
 // ─── Utilities ───────────────────────────────────────────
-function api(endpoint, body) {
-    return fetch(`${API}/${endpoint}`, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('apiKey') || 'default'}`
-        },
-        body: JSON.stringify(body)
-    }).then(async r => {
-        console.log(`📡 Response status for ${endpoint}:`, r.status);
-        const text = await r.text();
+async function api(endpoint, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    const apiKey = localStorage.getItem('apiKey');
+    if (apiKey) {
+        headers.Authorization = `Bearer ${apiKey}`;
+    }
+
+    async function request(url) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(body)
+        });
+        const text = await response.text();
+        console.log(`📡 Response status for ${url}:`, response.status);
+        console.log(`📄 Response text for ${url}:`, text);
+
+        let data;
         try {
-            const data = JSON.parse(text || '{}');
-            console.log(`📦 Raw JSON response for ${endpoint}:`, JSON.stringify(data, null, 2));
-            return data;
+            data = JSON.parse(text || '{}');
         } catch (parseError) {
-            console.error(`❌ Failed to parse JSON response for ${endpoint}:`, parseError);
-            console.error(`📄 Response text for ${endpoint}:`, text);
+            console.error(`❌ Failed to parse JSON response for ${url}:`, parseError);
             return { error: `Invalid JSON response from ${endpoint}` };
         }
-    }).catch(e => { 
-        console.error('❌ API Error:', e); 
-        return { error: `Network error calling ${endpoint}` }; 
-    });
+
+        if (!response.ok && response.status === 404) {
+            return { error: 'Not found', status: 404, data };
+        }
+        return data;
+    }
+
+    const baseUrl = `${API}/${endpoint}`;
+    let result = await request(baseUrl);
+
+    if (result && result.status === 404 && !endpoint.endsWith('.js')) {
+        console.log(`🔁 Retrying with .js suffix for ${endpoint}`);
+        result = await request(`${API}/${endpoint}.js`);
+    }
+
+    return result;
 }
 
 function el(id) { return document.getElementById(id); }
