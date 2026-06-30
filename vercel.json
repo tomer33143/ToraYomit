@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": true,
   "buildCommand": "npm install",
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
