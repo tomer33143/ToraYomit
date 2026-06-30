@@ -63,10 +63,22 @@ module.exports = async (req, res) => {
     await addFeedEvent(groupId, 'system', `🎉 נפתחה קבוצת "${groupName}"! קוד ההצטרפות: ${code}`);
 
     const { data: group } = await supabase.from('groups').select('*').eq('id', groupId).single();
-    const normalizedUser = normalizeUser({ id: rabbiId, phone, name, role: 'rabbi', group_id: groupId, points: 0 });
+    console.log('📊 Group from DB:', group);
+    
+    const userObj = { id: rabbiId, phone, name, role: 'rabbi', group_id: groupId, points: 0 };
+    console.log('👤 User object before normalize:', userObj);
+    
+    const normalizedUser = normalizeUser(userObj);
+    console.log('👤 User after normalize:', normalizedUser);
+    
     const normalizedGroup = normalizeGroup(group);
-    const response = { user: normalizedUser, group: { ...normalizedGroup, tasks: [], feed: [] } };
-    console.log('✅ Sending response:', JSON.stringify(response, null, 2));
+    console.log('👥 Group after normalize:', normalizedGroup);
+    
+    const response = { 
+      user: normalizedUser, 
+      group: { ...normalizedGroup, tasks: [], feed: [] } 
+    };
+    console.log('✅ FINAL RESPONSE:', JSON.stringify(response, null, 2));
     return res.status(200).json(response);
   } catch (error) {
     return res.status(500).json({ error: error.message || 'Server error' });

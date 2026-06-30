@@ -75,10 +75,16 @@ async function createGroup() {
     if (!name || !phone || !password || !groupName) return toast('אנא מלא את כל השדות', 'error');
     console.log('Creating group...', { name, phone, groupName });
     const data = await api('create-group', { name, phone, password, groupName });
-    console.log('Full API Response:', JSON.stringify(data, null, 2));
+    console.log('========== CREATE GROUP RESPONSE ==========');
+    console.log('typeof data:', typeof data);
+    console.log('data keys:', Object.keys(data));
+    console.log('data.user:', data.user);
+    console.log('data.error:', data.error);
+    console.log('Full data object:', data);
+    console.log('==========================================');
     if (data.error) return toast(data.error, 'error');
     if (!data.user) {
-        console.error('❌ Missing user in response. Full data:', JSON.stringify(data, null, 2));
+        console.error('❌ Missing user in response. Full data:', data);
         return toast('Error: no user data in response', 'error');
     }
     if (!data.user.name) {
@@ -467,7 +473,16 @@ function api(endpoint, body) {
             'Authorization': `Bearer ${localStorage.getItem('apiKey') || 'default'}`
         },
         body: JSON.stringify(body)
-    }).then(r => r.json()).catch(e => { console.error(e); return {}; });
+    }).then(r => {
+        console.log(`📡 Response status for ${endpoint}:`, r.status);
+        return r.json().then(data => {
+            console.log(`📦 Raw JSON response for ${endpoint}:`, JSON.stringify(data, null, 2));
+            return data;
+        });
+    }).catch(e => { 
+        console.error('❌ API Error:', e); 
+        return {}; 
+    });
 }
 
 function el(id) { return document.getElementById(id); }
