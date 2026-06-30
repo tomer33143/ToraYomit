@@ -14,13 +14,17 @@ let pollTimer     = null;
 
 // ─── Boot ────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
+    console.log('🔵 ToraYomit loading...');
     const saved = localStorage.getItem('toraUser');
     if (saved) {
+        console.log('✅ User found in localStorage');
         currentUser = JSON.parse(saved);
         showApp();
     } else {
+        console.log('📝 No user, showing auth');
         showAuth();
     }
+    console.log('✅ ToraYomit loaded successfully');
 });
 
 // ─── Auth tabs ───────────────────────────────────────────
@@ -84,20 +88,57 @@ function logout() {
 
 // ─── Views ───────────────────────────────────────────────
 function showAuth() {
-    el('authView').style.display = 'flex';
-    el('appView').style.display = 'none';
+    try {
+        console.log('📝 Showing Auth View');
+        const authView = el('authView');
+        const appView = el('appView');
+        
+        if (!authView || !appView) {
+            console.error('❌ Missing HTML elements - authView or appView not found');
+            document.body.innerHTML = '<div style="color:red; padding:20px;"><h1>שגיאה בטעינה</h1><p>אלמנטים HTML חסרים</p></div>';
+            return;
+        }
+        
+        authView.style.display = 'flex';
+        appView.style.display = 'none';
+        console.log('✅ Auth View displayed');
+    } catch (e) {
+        console.error('❌ Error in showAuth:', e);
+        document.body.innerHTML = '<div style="color:red; padding:20px;"><p>' + e.message + '</p></div>';
+    }
 }
 
 function showApp() {
-    el('authView').style.display = 'none';
-    el('appView').style.display = 'block';
-    el('userGreeting').textContent = currentUser.name || 'שלום';
+    try {
+        console.log('🎯 Showing App View');
+        const authView = el('authView');
+        const appView = el('appView');
+        const userGreeting = el('userGreeting');
+        const rabbiMsgBox = el('rabbiMsgBox');
+        
+        if (!authView || !appView) {
+            console.error('❌ Missing HTML elements');
+            return;
+        }
+        
+        authView.style.display = 'none';
+        appView.style.display = 'block';
+        
+        if (userGreeting) {
+            userGreeting.textContent = currentUser.name || 'שלום';
+        }
 
-    if (currentUser.role === 'rabbi') {
-        el('rabbiMsgBox').style.display = 'flex';
+        if (currentUser.role === 'rabbi' && rabbiMsgBox) {
+            rabbiMsgBox.style.display = 'flex';
+        }
+
+        switchTab('tasks');
+        console.log('✅ App View displayed');
+    } catch (e) {
+        console.error('❌ Error in showApp:', e);
+        document.body.innerHTML = '<div style="color:red; padding:20px;"><p>' + e.message + '</p></div>';
     }
-
-    switchTab('tasks');
+}
     fetchState();
     pollTimer = setInterval(fetchState, 2000);
 }
